@@ -20,6 +20,7 @@ namespace FlappyBird
 
         public enum BirdColor { Yellow, Red, Blue }
         public enum TimeOfDay { Day, Night }
+        
 
         public static GameManager Instance
         {
@@ -32,6 +33,16 @@ namespace FlappyBird
                 DestroyImmediate(gameObject);
             else
                 Instance = this;
+        }
+
+        private void Start()
+        {
+            private GameObject currentBirdInstance;
+            selectedColor = (BirdColor)Random.Range(0, System.Enum.GetValues(typeof(BirdColor)).Length);
+            selectedTime = (TimeOfDay)Random.Range(0, System.Enum.GetValues(typeof(TimeOfDay)).Length);
+            
+            ChangeBirdColor();
+            ChangeTimeOfDay();
         }
 
         public void GameOver()
@@ -59,5 +70,46 @@ namespace FlappyBird
 
             SceneManager.LoadScene(0);
         }
+
+        private void ChangeBirdColor()
+        {
+            GameObject birdPrefab = null;
+ 
+                switch (selectedColor)
+                {
+                    case BirdColor.Yellow:
+                    birdPrefab = yellowBirdPrefab;
+                    break;
+                    case BirdColor.Red:
+                    birdPrefab = redBirdPrefab;
+                    break;
+                    case BirdColor.Blue:
+                    birdPrefab = blueBirdPrefab;
+                    break;
+                }
+
+   
+                if (birdPrefab != null)
+                {
+                    Destroy(currentBirdInstance);
+                    currentBirdInstance = Instantiate(birdPrefab, birdSpawnPoint.position, Quaternion.identity);
+                }
+        }
+
+        private void ChangeTimeOfDay()
+            {
+                switch (selectedTime)
+                {
+                    case TimeOfDay.Day:
+            
+                        backgroundSpriteRenderer.sprite = dayBackgroundSprite; 
+                        break;
+                    case TimeOfDay.Night:
+                    
+                        backgroundSpriteRenderer.sprite = nightBackgroundSprite;
+                        break;
+                }
+            }
+
     }
 }
