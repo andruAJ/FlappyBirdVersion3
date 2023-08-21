@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+//NO SE POR QUÉ MI COMPIUTADOR YA NO ABRE EL PROYECTO DESDE UNITY, ASÍ QUE TUVE QUE HACER LOS CAMBIOS DE UN REPOSITORIO A OTRO DESDE GITHUB DIRECTAMENTE. No tengo manera de comprobar si los cambios siguen funcionando bien en unity y no pude meter los prefabs a los scripts porque unity ya no abre el proyecto, incluso si lo borro y lo vuelvo a clonar
 namespace FlappyBird
 {
     public class PipeSpawner : MonoBehaviour
@@ -20,10 +21,51 @@ namespace FlappyBird
         [SerializeField]
         private float timeToSpawnPipe;
 
+        private GameManager gameManager;
+
+         private List<GameObject> PoolPipes = new List<GameObject>();
+
         private void Start()
         {
+            gameManager = FindObjectOfType<GameManager>();
             StartCoroutine(SpawnPipes());
         }
+
+        private GameObject GetPooledPipes()
+        {
+            foreach (GameObject pipe in PoolPipes)
+            {
+                if (!pipe.activeInHierarchy)
+                {
+                    pipe.SetActive(true);
+                    ChangePipeColor(newPipe);
+                    return pipe;
+                }
+            }
+
+            GameObject newPipe = Instantiate(pipe);
+            pipePool.Add(newPipe);
+            return newPipe;
+        }
+
+         private void ChangePipeColor(GameObject pipe)
+         {
+             SpriteRenderer pipeRenderer = pipe.GetComponent<SpriteRenderer>();
+
+    
+                switch (gameManager.selectedColor)
+                {
+                    case BirdColor.Yellow:
+                      pipeRenderer.sprite = yellowPipe;
+                        break;
+                    case BirdColor.Red:
+                        pipeRenderer.sprite = redPipe;
+                        break;
+                    case BirdColor.Blue:
+                        pipeRenderer.sprite = bluePipe;
+                        break;
+                }
+         }
 
         private Vector3 GetSpawnPosition()
         {
@@ -34,14 +76,13 @@ namespace FlappyBird
         {
             yield return new WaitForSeconds(timeToSpawnFirstPipe);
 
-            Instantiate(pipe, GetSpawnPosition(), Quaternion.identity);
-
-            do
+            while (true)
             {
-                yield return new WaitForSeconds(timeToSpawnPipe);
+                GameObject newPipe = GetPooledPipe();
+                newPipe.transform.position = GetSpawnPosition();
 
-                Instantiate(pipe, GetSpawnPosition(), Quaternion.identity);
-            } while (true);
+                yield return new WaitForSeconds(timeToSpawnPipe);
+            }
         }
 
         public void Stop()
