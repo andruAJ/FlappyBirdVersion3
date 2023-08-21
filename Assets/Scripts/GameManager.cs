@@ -18,6 +18,9 @@ namespace FlappyBird
         public bool isGameOver { get; private set; }
         public int scoreCount { get; private set; }
 
+        public enum BirdColor { Yellow, Red, Blue }
+        public enum TimeOfDay { Day, Night }
+
         public static GameManager Instance
         {
             get; private set;
